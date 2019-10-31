@@ -1,68 +1,13 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# React Concurrent Mode
 
-## Available Scripts
+## 컨커런트 모드?
 
-In the project directory, you can run:
+과거 리액트에서는 "랜더링" 작업은 실행중에 다른 작업에 의해서 끼어들 수 없었다. 이 방식을 "블로킹 랜더링"이라고 부르는데, 이 방식의 단점은 랜더링 중에 어떤 작업도 불가능하고 화면을 그리는 작업만 가능했다. 하지만 컨커런트 모드에서는 달라짐. 이로서 사용자 경험이 더 좋아질 것이다. UI를 랜더링하는 도중에 다른 작업이 가능해짐으로서 이전에 불가능했던 많은 다른 작업이 가능해질 것이다.
 
-### `yarn start`
+### Interruptible 랜더링
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+텍스트 입력에 디바운스 등을 거는 등의 행위의 가장 근본적인 문제는 랜더링은 중간에 끼어들 수 없기 때문에 발생한다. 그 예로 검색필터가 붙어있는 목록을 화면에 그릴떄 브라우저는 텍스트 input을 키프레스 이후에 랜더링을 하느라 바로 업데이트 할 수 없는 것이다. 컨커런트 모드는 인터럽트 랜더링을 가능하게 만들었다. 일단 브라우저가 화면을 업데이트하게 만들고, 리액트는 계속해서 **메모리 안에서**랜더링을 한 뒤에 랜더링 작업이 끝나면 리액트는 DOM을 업데이트를 하게 되는 것이다. 이 개념을 이해하려면 깃의 브랜치를 생각하면 될것같다. 메인 브랜치에서는 UI의 즉각적 반응을 위해서 INPUT을 업데이트 하고 리액트가 작업하고 있는 브랜치에서는 UI를 만들고 있다가 만드는 작업이 끝나면 UI(메인 브랜치)에 합치는 방식이라고 생각하면 될 것 같다.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+### 의도적 로드 단계
 
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `yarn build`
-
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+컨커런트 모드는 리액트가 "브랜치에서"작업하는 것처럼 작동하게 만든다. 브랜치는 목록 랜더같은 단기 문제만 해결하는데 유용한 것이 아니라 오래 걸리는 작업에도 사용가능하다. API호출에서 요청이 가자마자 바로 스피너를 돌리는 것이 아니라 잠깐 이전 상태에 멈춰있다가 새 화면을 그려주면 어떨까? 라는것이 비동기 랜더링에서 의도하는 바이다. 이것은 지금도 가능하지만 굉장히 핸들링하기 어렵다. 컨커런트모드에서는 리액트 기본 기능으로 탑재되어 사용하기 쉬울 것. 리액트는 이런 오래 걸리는 요청 작업을 "브랜치"에서 작업하고 나중에 적용시킨다. 이로써 스피너를 돌리는 것이 아니라 요청 직전의 화면에서 완전히 상호작용이 가능한 채로 유지가 가능하게 될 것이다.
